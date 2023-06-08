@@ -2,7 +2,8 @@
 <html>
 <head>
     <title>JSON Response Table</title>
-    <style>        html,
+    <style>
+        html,
         body {
             height: 100%;
         }
@@ -40,35 +41,30 @@
             text-align: center;
         }
 
-        thead {
-            th {
-                background-color: #55608f;
-            }
+        thead th {
+            background-color: #55608f;
         }
 
-        tbody {
-            tr {
-                &:hover {
-                    background-color: rgba(255, 255, 255, 0.3);
-                }
-            }
-            td {
-                position: relative;
-                &:hover {
-                    &:before {
-                        content: "";
-                        position: absolute;
-                        left: 0;
-                        right: 0;
-                        top: -9999px;
-                        bottom: -9999px;
-                        background-color: rgba(255, 255, 255, 0.2);
-                        z-index: -1;
-                    }
-                }
-            }
+        tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.3);
         }
- html,
+
+        tbody td {
+            position: relative;
+        }
+
+        tbody td:hover:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: -9999px;
+            bottom: -9999px;
+            background-color: rgba(255, 255, 255, 0.2);
+            z-index: -1;
+        }
+
+        html,
         body {
             height: 100%;
             margin: 0;
@@ -129,9 +125,6 @@
     </style>
 </head>
 <body>
-     </style>
-</head>
-<body>
     <h1>JSON Response Table</h1>
     <div class="tbl-header">
         <table>
@@ -149,7 +142,7 @@
         </table>
     </div>
     <script>
-        // Function to create the table from JSON data
+                // Function to create the table from JSON data
         function createTableFromJSON(jsonData) {
             var table = document.getElementById('responseTable');
 
