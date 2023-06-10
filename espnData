@@ -1,0 +1,40 @@
+import requests
+import json
+from tabulate import tabulate
+
+url = "http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"
+
+# Send a GET request to the URL
+response = requests.get(url)
+
+# Check if the request was successful
+if response.status_code == 200:
+    # Extract the JSON data from the response
+    json_data = response.json()
+
+    # Save the JSON data to a file
+    filename = "scoreboard_data.json"  # Replace with your desired filename
+    with open(filename, "w") as file:
+        json.dump(json_data, file)
+
+    print(f"Scoreboard data saved to {filename}")
+
+    # Extract relevant data for the table
+    games = json_data['events']
+    table_data = []
+    for game in games:
+        game_info = [
+            game['name'],
+            game['status']['type']['shortDetail'],
+            game['competitions'][0]['competitors'][0]['team']['displayName'],
+            game['competitions'][0]['competitors'][0]['score'],
+            game['competitions'][0]['competitors'][1]['team']['displayName'],
+            game['competitions'][0]['competitors'][1]['score']
+        ]
+        table_data.append(game_info)
+
+    # Print the table
+    headers = ['Game', 'Status', 'Home Team', 'Home Score', 'Away Team', 'Away Score']
+    print(tabulate(table_data, headers=headers, tablefmt='fancy_grid'))
+else:
+    print("Error occurred while fetching data from the URL.")

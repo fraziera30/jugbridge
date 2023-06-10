@@ -1,0 +1,214 @@
+{
+    "schema_version": "v1",
+    "name_for_human": "TODO List (No Auth)",
+    "name_for_model": "todo",
+    "description_for_human": "Manage your TODO list. You can add, remove and view your TODOs.",
+    "description_for_model": "Plugin for managing a TODO list, you can add, remove and view your TODOs.",
+    "auth": {
+        "type": "none"
+    },
+    "api": {
+        "type": "openapi",
+        "url": "PLUGIN_HOSTNAME/openapi.yaml"
+    },
+    "logo_url": "PLUGIN_HOSTNAME/logo.png",
+    "contact_email": "support@example.com",
+    "legal_info_url": "https://example.com/legal"
+}
+import json
+
+import quart
+import quart_cors
+from quart import request
+
+# Note: Setting CORS to allow chat.openapi.com is only required when running a localhost plugin
+app = quart_cors.cors(quart.Quart(__name__), allow_origin="https://chat.openai.com")
+
+_TODOS = {}
+
+
+@app.post("/todos/<string:username>")
+async def add_todo(username):
+    request = await quart.request.get_json(force=True)
+    if username not in _TODOS:
+        _TODOS[username
+] = []
+    _TODOS[username
+].append(request[
+    "todo"
+])
+    return quart.Response(response='OK', status=200)
+
+
+@app.get("/todos/<string:username>")
+async def get_todos(username):
+    return quart.Response(response=json.dumps(_TODOS.get(username,
+[])), status=200)
+
+
+@app.delete("/todos/<string:username>")
+async def delete_todo(username):
+    request = await quart.request.get_json(force=True)
+    todo_idx = request[
+    "todo_idx"
+]
+    if 0 <= todo_idx < len(_TODOS[username
+]):
+        _TODOS[username
+].pop(todo_idx)
+    return quart.Response(response='OK', status=200)
+
+
+@app.get("/logo.png")
+async def plugin_logo():
+    filename = 'logo.png'
+    return await quart.send_file(filename, mimetype='image/png')
+
+
+@app.get("/.well-known/ai-plugin.json")
+async def plugin_manifest():
+    host = request.headers['Host'
+]
+    with open("ai-plugin.json") as f:
+        text = f.read()
+        # This is a trick we do to populate the PLUGIN_HOSTNAME constant in the manifest
+        text = text.replace("PLUGIN_HOSTNAME", f"https://{host}")
+        return quart.Response(text, mimetype="text/json")
+
+
+@app.get("/openapi.yaml")
+async def openapi_spec():
+    host = request.headers['Host'
+]
+    with open("openapi.yaml") as f:
+        text = f.read()
+        # This is a trick we do to populate the PLUGIN_HOSTNAME constant in the OpenAPI spec
+        text = text.replace("PLUGIN_HOSTNAME", f"https://{host}")
+        return quart.Response(text, mimetype="text/yaml")
+
+
+def main():
+    app.run(debug=True, host="0.0.0.0", port=5002)
+
+
+if __name__ == "__main__":
+    main()
+    openapi: 3.0.1
+info:
+    title: Sport Stats
+    description: Get current and historical stats for sport players and games.
+    version: "v1"
+servers:
+    - url: PLUGIN_HOSTNAME
+paths:
+    /players:
+        get:
+            operationId: getPlayers
+            summary: Retrieves all players from all seasons whose names match the query string.
+            parameters:
+                - in: query
+                  name: query
+                  schema:
+                      type: string
+                  description: Used to filter players based on their name. For example, ?query=davis will return players that have 'davis' in their first or last name.
+            responses: "200":
+                    description: OK
+    /teams:
+        get:
+            operationId: getTeams
+            summary: Retrieves all teams for the current season.
+            responses: "200":
+                    description: OK
+    /games:
+        get:
+            operationId: getGames
+            summary: Retrieves all games that match the filters specified by the args. Display results using markdown tables.
+            parameters:
+                - in: query
+                  name: limit
+                  schema:
+                      type: string
+                  description: The max number of results to return.
+                - in: query
+                  name: seasons
+                  schema:
+                      type: array
+                      items:
+                          type: string
+                  description: Filter by seasons. Seasons are represented by the year they began. For example,
+2018 represents season 2018-2019.
+                - in: query
+                  name: team_ids
+                  schema:
+                      type: array
+                      items:
+                          type: string
+                  description: Filter by team ids. Team ids can be determined using the getTeams function.
+                - in: query
+                  name: start_date
+                  schema:
+                      type: string
+                  description: A single date in 'YYYY-MM-DD' format. This is used to select games that occur on or after this date.
+                - in: query
+                  name: end_date
+                  schema:
+                      type: string
+                  description: A single date in 'YYYY-MM-DD' format. This is used to select games that occur on or before this date.
+            responses: "200":
+                    description: OK
+    /stats:
+        get:
+            operationId: getStats
+            summary: Retrieves stats that match the filters specified by the args. Display results using markdown tables.
+            parameters:
+                - in: query
+                  name: limit
+                  schema:
+                      type: string
+                  description: The max number of results to return.
+                - in: query
+                  name: player_ids
+                  schema:
+                      type: array
+                      items:
+                          type: string
+                  description: Filter by player ids. Player ids can be determined using the getPlayers function.
+                - in: query
+                  name: game_ids
+                  schema:
+                      type: array
+                      items:
+                          type: string
+                  description: Filter by game ids. Game ids can be determined using the getGames function.
+                - in: query
+                  name: start_date
+                  schema:
+                      type: string
+                  description: A single date in 'YYYY-MM-DD' format. This is used to select games that occur on or after this date.
+                - in: query
+                  name: end_date
+                  schema:
+                      type: string
+                  description: A single date in 'YYYY-MM-DD' format. This is used to select games that occur on or before this date.
+            responses: "200":
+                    description: OK
+    /season_averages:
+        get:
+            operationId: getSeasonAverages
+            summary: Retrieves regular season averages for the given players. Display results using markdown tables.
+            parameters:
+                - in: query
+                  name: season
+                  schema:
+                      type: string
+                  description: Defaults to the current season. A season is represented by the year it began. For example,
+2018 represents season 2018-2019.
+                - in: query
+                  name: player_ids
+                  schema:
+                      type: array
+                      items:
+                          type: string
+                  description: Filter by player ids. Player ids can be determined using the getPlayers function.
+            responses: "200":
+                    description: OK
