@@ -1,72 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>MLB Scoreboard</title>
-  <style>
-    /* CSS styles for the scoreboard */
-  </style>
+    <title>JSON Response Table</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <style>
+        /* Add the dark mode styles here */
+        body.dark-mode {
+            --dark-bg: #ffffff;
+            --light-bg: #ffffff;
+            --text: rgba(85, 96, 143, 0.72);
+        }
+    </style>
+    <script>
+        function toggleDarkMode() {
+            var body = document.querySelector('body');
+            body.classList.toggle('dark-mode');
+        }
+    </script>
+    <script src="script.js"></script>
 </head>
 <body>
-  <h1>MLB Scoreboard</h1>
-  <div id="scoreboard"></div>
+<div id="container">
+    <h1>Jugbridge</h1>
+    <div id="buttonsContainer">
+        <button class="button" onclick="fetchDataAndCreateTable()">Fetch Data</button>
+        <button class="button" onclick="clearTable()">Clear Table</button>
+        <!-- Add the dark mode toggle button -->
+        <button class="button dark-mode-toggle" onclick="toggleDarkMode()">Dark Mode</button>
+    </div>
+    <table id="responseTable"></table>
+    <h1>Player Details</h1>
+    <table id="playerDetailsTable"></table>
+</div>
 
-  <script>
-    // JavaScript code to fetch and display the scoreboard
-    const apiUrl = 'http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard';
-
-    fetch(apiUrl)
-      .then(response => response.json())
-      .then(data => {
-        // Process the API response data
-        const scoreboard = data.scoreboard;
-
-        // Create an HTML table to display the scoreboard
-        const table = document.createElement('table');
-        table.classList.add('scoreboard-table');
-
-        // Add table header
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
-        const headers = ['Game', 'Status', 'Home Team', 'Away Team'];
-        headers.forEach(headerText => {
-          const th = document.createElement('th');
-          th.textContent = headerText;
-          headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-        // Add table rows for each game
-        const tbody = document.createElement('tbody');
-        scoreboard.forEach(game => {
-          const row = document.createElement('tr');
-          const gameCell = document.createElement('td');
-          gameCell.textContent = game.id;
-          row.appendChild(gameCell);
-
-          const statusCell = document.createElement('td');
-          statusCell.textContent = game.status;
-          row.appendChild(statusCell);
-
-          const homeTeamCell = document.createElement('td');
-          homeTeamCell.textContent = game.competitions[0].competitors[0].team.displayName;
-          row.appendChild(homeTeamCell);
-
-          const awayTeamCell = document.createElement('td');
-          awayTeamCell.textContent = game.competitions[0].competitors[1].team.displayName;
-          row.appendChild(awayTeamCell);
-
-          tbody.appendChild(row);
-        });
-        table.appendChild(tbody);
-
-        // Append the table to the scoreboard div
-        const scoreboardDiv = document.getElementById('scoreboard');
-        scoreboardDiv.appendChild(table);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
-  </script>
 </body>
 </html>
